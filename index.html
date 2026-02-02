@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <title>Obsidian Megnyitása...</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; padding-top: 50px; color: #333; }
+        .message { font-size: 1.2rem; }
+    </style>
+</head>
+<body>
+    <div class="message">
+        Megnyitás Obsidianban...<br>
+        <small>(Ha nem történik semmi, engedélyezd az előugró ablakokat vagy ellenőrizd a linket.)</small>
+    </div>
+
+    <script>
+        // 1. Kiolvassuk az URL-ből a "?link=" utáni részt
+        const params = new URLSearchParams(window.location.search);
+        const targetLink = params.get('link');
+
+        // 2. Ellenőrizzük, hogy létezik-e és biztonságos-e (obsidian:// kezdet)
+        if (targetLink && targetLink.startsWith('obsidian://')) {
+            // 3. Megnyitjuk a linket
+            window.location.href = targetLink;
+            
+            // Opcionális: Bezárjuk ezt az ablakot egy kis késleltetéssel (nem minden böngésző engedi)
+            setTimeout(() => {
+                window.close();
+            }, 1000);
+        } else {
+            document.body.innerHTML = "<h3>Hiba: Nincs érvényes Obsidian link megadva.</h3><p>A linknek így kell kinéznie: <code>?link=obsidian://...</code></p>";
+        }
+    </script>
+</body>
+</html>
