@@ -11,25 +11,41 @@
 <body>
     <div class="message">
         Megnyitás Obsidianban...<br>
-        <small>(Ha nem történik semmi, engedélyezd az előugró ablakokat vagy ellenőrizd a linket.)</small>
+        <small>(Az ablak 5 másodperc múlva bezárul)</small>
     </div>
 
     <script>
-        // 1. Kiolvassuk az URL-ből a "?link=" utáni részt
-        const params = new URLSearchParams(window.location.search);
-        const targetLink = params.get('link');
+        // 1. A teljes URL-t nézzük, nem bontjuk paraméterekre
+        const queryString = window.location.search;
+        
+        // 2. Megkeressük hol kezdődik a "link=" rész
+        const searchPhrase = "link=";
+        const startIndex = queryString.indexOf(searchPhrase);
 
-        // 2. Ellenőrizzük, hogy létezik-e és biztonságos-e (obsidian:// kezdet)
-        if (targetLink && targetLink.startsWith('obsidian://')) {
-            // 3. Megnyitjuk a linket
-            window.location.href = targetLink;
-            
-            // Opcionális: Bezárjuk ezt az ablakot egy kis késleltetéssel (nem minden böngésző engedi)
-            setTimeout(() => {
-                window.close();
-            }, 10000);
+        if (startIndex !== -1) {
+            // 3. Levágunk mindent a "link=" után (így az & jelek is megmaradnak!)
+            // A +5 a "link=" hossza
+            let targetLink = queryString.substring(startIndex + searchPhrase.length);
+
+            // Ha a link véletlenül kódolva érkezne (pl. %3A), visszakódoljuk, de csak ha nem obszidián link
+            if (!targetLink.startsWith("obsidian://")) {
+                 targetLink = decodeURIComponent(targetLink);
+            }
+
+            // Biztonsági ellenőrzés
+            if (targetLink.includes("obsidian://")) {
+                // 4. Megnyitás
+                window.location.href = targetLink;
+
+                // 5. Bezárás 5 másodperc múlva
+                setTimeout(() => {
+                    window.close();
+                }, 5000);
+            } else {
+                 document.body.innerHTML = "<h3>Hiba: A link nem tűnik Obsidian linknek.</h3>";
+            }
         } else {
-            document.body.innerHTML = "<h3>Hiba: Nincs érvényes Obsidian link megadva.</h3><p>A linknek így kell kinéznie: <code>?link=obsidian://...</code></p>";
+            document.body.innerHTML = "<h3>Hiba: Nincs megadva link.</h3>";
         }
     </script>
 </body>
